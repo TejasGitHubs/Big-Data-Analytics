@@ -1,0 +1,131 @@
+---
+title: "Lab 03 - Data Wrangling"
+author: Tejas Dhomne
+output:
+  html_document:http://3.20.234.56/files/fin510/lab-03/lab-03.html
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: simplex
+    number_sections: false
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+## 0 load the package 
+```{r}
+library(tidyverse)
+```
+
+## 1 create a tibble 
+
+```{r}
+# load the data 
+df <- read_csv("firm.csv")
+# first six rows 
+head(df)
+# number of rows  
+nrow(df)
+# number of columns 
+ ncol(df)
+# column names 
+names(df)
+```
+
+## 2 subset data 
+
+### 2.1 one column 
+```{r}
+df$NI
+select(df,GVKEY)
+```
+
+### 2.2 three columns 
+```{r}
+df[,c("FYEAR","TIC","NI")]
+select(df,FYEAR,TIC,NI)
+
+```
+
+### 2.3 four rows and three columns
+```{r}
+df[c(1:4),c("FYEAR","TIC","NI")]
+
+```
+
+## 3 filter rows  
+
+### 3.1 observations that belong to AAPL in 2015 
+```{r}
+df[df$FYEAR==2015 & df$TIC=="AAPL",]
+filter(df,FYEAR==2015, TIC=="AAPL")
+```
+
+### 3.2 observations that have the minimum NI value 
+```{r}
+df[df$NI==min(df$NI),]
+filter(df,NI==min(NI))
+```
+
+### 3.3 select columns of observations that belong to AAPL in 2015   
+```{r}
+df[df$FYEAR==2015 & df$TIC=="AAPL",c("FYEAR","TIC","NI")]
+
+```
+
+## 4 arrange rows 
+
+### 4.1 ascending order of NI
+```{r}
+arrange(df,NI)
+
+```
+
+### 4.2 descending order of NI
+```{r}
+arrange(df,desc(NI))
+
+```
+
+### 4.3 ascending order of TIC and FYEAR, and descending order of NI
+```{r}
+arrange(df,TIC, FYEAR, desc(NI))
+
+```
+
+## 5 create new variables  
+
+### 5.1 return on assets 
+```{r}
+df$ROA<-df$AT/df$NI
+df
+```
+
+### 5.2 net income bin numbers  
+```{r}
+# step1: identify thresholds of 4 bins with an equal number of observations 
+bins <- quantile(df$NI, c(0,0.25,0.5,0.75,1))
+bins
+# step2: remove the names of a named vector  
+bins <- unname(bins)
+# step3: bin NI  
+df$NI_bin <- .bincode(df$NI, bins, include.lowest = TRUE)
+table(df$NI_bin)
+```
+
+### 5.3 log of assets 
+```{r}
+df %>% 
+  mutate(AT_LOG = log(AT))
+head(df)
+```
+
+### 5.4 drop a column 
+```{r}
+df$ROA<-NULL
+head(df)
+
+```
+
